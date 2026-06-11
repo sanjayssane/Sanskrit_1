@@ -1,0 +1,14 @@
+# Application data (SQLite DB + backups) — never commit live shop data
+data/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# IDE / OS
+.vscode/
+.idea/
+Thumbs.db
