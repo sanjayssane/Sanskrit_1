@@ -18,8 +18,12 @@ def _app() -> AppTest:
     return AppTest.from_file("app.py", default_timeout=30)
 
 
+def _staff_login(at: AppTest) -> AppTest:
+    return at.switch_page("pages/0_Staff_Login.py").run()
+
+
 def test_login_rejects_bad_credentials():
-    at = _app().run()
+    at = _staff_login(_app())
     assert not at.exception
     at.text_input[0].set_value("owner")
     at.text_input[1].set_value("wrong-password")
@@ -29,13 +33,16 @@ def test_login_rejects_bad_credentials():
 
 
 def test_login_then_forced_password_change():
-    at = _app().run()
+    at = _staff_login(_app())
     at.text_input[0].set_value("owner")
     at.text_input[1].set_value("change@123")
     at.button[0].click().run()
     assert not at.exception
     assert at.session_state["user"]["username"] == "owner"
-    # Forced password-change page (FR-1.5)
+    logged_in = dict(at.session_state["user"])
+    at = _app()
+    at.session_state["user"] = logged_in
+    at.run()
     at.text_input[0].set_value("new-secret-1")
     at.text_input[1].set_value("new-secret-1")
     at.button[0].click().run()

@@ -20,14 +20,15 @@
 6. [Contacts](#6-contacts)
 7. [Purchases](#7-purchases)
 8. [Sales](#8-sales)
-9. [Inventory](#9-inventory)
-10. [Reports](#10-reports)
-11. [Analytics](#11-analytics)
-12. [User Management (Owner Only)](#12-user-management-owner-only)
-13. [Common Workflows](#13-common-workflows)
-14. [Tips, FAQ, and Troubleshooting](#14-tips-faq-and-troubleshooting)
-15. [Backup and LAN Access](#15-backup-and-lan-access)
-16. [Glossary](#16-glossary)
+9. [Online Orders](#9-online-orders)
+10. [Inventory](#10-inventory)
+11. [Reports](#11-reports)
+12. [Analytics](#12-analytics)
+13. [User Management (Owner Only)](#13-user-management-owner-only)
+14. [Common Workflows](#14-common-workflows)
+15. [Tips, FAQ, and Troubleshooting](#15-tips-faq-and-troubleshooting)
+16. [Backup and LAN Access](#16-backup-and-lan-access)
+17. [Glossary](#17-glossary)
 
 ---
 
@@ -47,6 +48,7 @@ The system supports **dual-script book titles** — both Devanagari (e.g., र�
 | **Contacts** | Maintain suppliers and wholesale customers |
 | **Purchases** | Record stock received from suppliers; stock increases automatically |
 | **Sales** | Record counter (retail) and bulk (wholesale) sales; print PDF receipts |
+| **Online Orders** | Guests place pickup orders without login; staff fulfill and record sales |
 | **Inventory** | View current stock, per-book history, and low-stock alerts |
 | **Reports** | Formal Sale–Purchase statements, Profit & Loss, and stock reports |
 | **Analytics** | Trends, charts, bestsellers, reorder suggestions, and business alerts |
@@ -57,7 +59,8 @@ The system supports **dual-script book titles** — both Devanagari (e.g., र�
 The following are **out of scope** for version 1.0:
 
 - GST / tax computation and tax-compliant invoicing (simple sale receipts only)
-- Online e-commerce storefront
+- Full e-commerce (online payment, shipping, customer accounts) — basic guest
+  order placement for shop pickup **is** included (see [Section 9](#9-online-orders))
 - Barcode scanning and label printing
 - Accounting software integrations (e.g., Tally)
 - Multi-branch / multi-shop support
@@ -80,9 +83,15 @@ All amounts in the application are displayed in **Indian Rupees (₹)**. Interna
 
 [Screenshot: Browser address bar showing the application URL]
 
-3. The login screen appears with the shop title **संस्कृत साहित्य रत्नाकर — Sanskrit Sahitya Ratnakar**.
+3. The **Order Books** page opens by default — a public catalog where customers
+   can browse in-stock titles and place pickup orders without logging in.
 
-[Screenshot: Login screen with username and password fields]
+[Screenshot: Order Books page with catalog and cart]
+
+4. Staff click **Staff Login** in the sidebar to reach the back office (Dashboard,
+   Sales, Online Orders, etc.).
+
+[Screenshot: Staff Login screen with username and password fields]
 
 ### First-time login
 
@@ -115,19 +124,22 @@ You cannot reuse the default password `change@123`. Once saved, you are taken to
 
 ### Navigation
 
-After login, the **sidebar** on the left shows:
+**Without login (guests):** the sidebar shows **Order Books** (default) and
+**Staff Login**.
+
+After staff login, the **sidebar** on the left shows:
 
 - Your **full name** and **role** (Owner or Employee)
 - A **Log out** button
-- Links to all pages you are allowed to access
+- Links to all back-office pages you are allowed to access
 
 [Screenshot: Sidebar navigation with user name, role, and page links]
 
-**Page order in the sidebar:**
+**Page order in the staff sidebar:**
 
 | Page | Available to |
 |------|-------------|
-| Dashboard | Everyone (opens by default) |
+| Dashboard | Everyone (opens by default after login) |
 | Books | Everyone |
 | Purchases | Everyone |
 | Sales | Everyone |
@@ -135,6 +147,7 @@ After login, the **sidebar** on the left shows:
 | Reports | Everyone |
 | Analytics | Everyone (content varies by role) |
 | Contacts | Everyone |
+| Online Orders | Everyone |
 | Users | Owner only |
 
 ### Logging out
@@ -164,6 +177,7 @@ The **Owner** has full access to all modules, including financial reports, profi
 | Deactivate books | Yes | No |
 | Record purchases | Yes | Yes |
 | Record sales (retail and wholesale) | Yes | Yes |
+| Fulfill or cancel pending online orders | Yes | Yes |
 | Cancel a purchase or sale | Yes | No |
 | View current inventory | Yes | Yes |
 | View stock ledger | Yes | Yes |
@@ -195,15 +209,18 @@ The **Dashboard** is the first page you see after login. It gives a quick overvi
 
 **Top alerts (up to 3)**
 
-Active business alerts from the analytics engine appear at the top — for example, low-stock warnings, unusually high or low sales today, or items sold below cost. See [Section 11.7 — Insights tab](#117-insights-tab) for the full list of alert types.
+Active business alerts from the analytics engine appear at the top — for example, low-stock warnings, unusually high or low sales today, or items sold below cost. See [Section 12.9 — Insights tab](#129-insights-tab) for the full list of alert types.
 
-**Today's summary (3 metrics)**
+**Today's summary (4 metrics)**
 
 | Metric | Meaning |
 |--------|---------|
 | **Today's sales** | Total rupee amount and number of sale transactions today |
 | **Today's purchases** | Total rupee amount and number of purchase transactions today |
 | **Low-stock titles** | Count of books currently below their low-stock threshold |
+| **Pending online orders** | Guest orders awaiting staff fulfillment |
+
+When pending orders exist, an info banner also appears above the metrics.
 
 **Last 30 days (4 KPIs with % change)**
 
@@ -260,9 +277,10 @@ The 10 most recent sales and purchases across the shop, with date, type, referen
 
 1. Open the **Dashboard**.
 2. Read any **alerts** at the top.
-3. Check **Low-stock titles** and the low-stock table.
-4. Glance at **Today's sales** and **Recent transactions**.
-5. Proceed to **Purchases** or **Sales** as needed.
+3. Check **Pending online orders** — fulfill via **Online Orders** if any exist.
+4. Check **Low-stock titles** and the low-stock table.
+5. Glance at **Today's sales** and **Recent transactions**.
+6. Proceed to **Purchases**, **Sales**, or **Online Orders** as needed.
 
 ---
 
@@ -488,7 +506,84 @@ On success: *"Sale #\<number\> saved — stock updated."* A **Download receipt #
 
 ---
 
-## 9. Inventory
+## 9. Online Orders
+
+Online ordering lets customers browse the catalog and request books for shop
+pickup without creating an account. Staff review pending orders and, when the
+customer arrives, mark an order complete — which records a retail sale and
+updates stock.
+
+> **Important:** Stock is checked when a guest places an order, but it is **not
+> reserved**. Counter sales or other fulfilled orders can reduce stock before
+> pickup. Staff re-check stock when marking an order complete.
+
+### 9.1 Guest ordering (Order Books page)
+
+The public **Order Books** page is the default landing page when the app opens
+without staff login. Share this URL with customers who want to order remotely.
+
+[Screenshot: Order Books page — catalog browse tab and cart]
+
+**Browse catalog tab**
+
+1. Use **Search books** to find titles in Devanagari or Roman (title, author, or code).
+2. Only **in-stock** active books are shown.
+3. Under **Add to cart**, pick a book, set quantity (limited by available stock
+   minus what is already in the cart), and click **Add to cart**.
+4. Switch to the **Your cart** tab to review lines, remove items, or proceed to checkout.
+
+**Your cart tab — checkout**
+
+1. Review line items and the order total.
+2. Fill in contact details:
+   - **Full name** (required)
+   - **Phone** (required)
+   - **Email** (optional)
+   - **Notes** (optional — pickup preferences, etc.)
+3. Click **Place order**.
+
+On success, a confirmation message shows the **order number** (e.g., Order #5).
+The shop contacts the customer to arrange pickup and payment at the counter.
+
+If stock is insufficient at placement time, an error lists the affected titles.
+
+### 9.2 Managing online orders (staff)
+
+After **Staff Login**, open **Online Orders** in the sidebar.
+
+[Screenshot: Online Orders — Pending tab with order detail and action buttons]
+
+**Pending tab**
+
+Lists all orders awaiting fulfillment.
+
+1. Review the pending orders table (order #, date, customer, phone, email, lines, qty, total).
+2. Select an order in **Manage order #** to see line items and customer notes.
+3. When the customer picks up and pays:
+   - Click **Mark complete**.
+   - The system creates a **retail sale** (payment method: cash, notes reference
+     the online order), decreases stock, and links the sale to the order.
+   - Download the PDF receipt from the success message or the Completed tab.
+4. If the order will not be fulfilled:
+   - Enter a **Cancellation reason** and click **Cancel order**.
+   - Stock is **not** changed; the order moves to the Cancelled tab.
+
+If stock is insufficient when completing, an error explains which titles are short.
+
+**Completed tab**
+
+Filter by date range. Shows completion time, who completed the order, and linked
+**Sale #**. Select an order to view line items and re-download the receipt PDF.
+
+**Cancelled tab**
+
+Filter by date range. Shows cancellation time, who cancelled, and the reason.
+
+Both **Owner** and **Employee** can fulfill and cancel pending online orders.
+
+---
+
+## 10. Inventory
 
 Use the **Inventory** page to see how much stock you have, trace the history of any title, and (owners only) record manual adjustments.
 
@@ -542,9 +637,9 @@ Use manual adjustments for stock changes that are not purchases or sales — for
 
 ---
 
-## 10. Reports
+## 11. Reports
 
-Use the **Reports** page for formal financial statements and stock snapshots. Unlike Analytics (Section 11), Reports focus on **tabular statements** suitable for accounting review and export.
+Use the **Reports** page for formal financial statements and stock snapshots. Unlike Analytics (Section 12), Reports focus on **tabular statements** suitable for accounting review and export.
 
 [Screenshot: Reports page with date range and Sale–Purchase Statement tab]
 
@@ -614,13 +709,13 @@ Available to everyone. Shows a point-in-time snapshot:
 
 ---
 
-## 11. Analytics
+## 12. Analytics
 
 The **Analytics** page is the business intelligence centre of the application. It turns the purchases, sales, and inventory data you record daily into trends, rankings, charts, and proactive alerts.
 
 [Screenshot: Analytics page — period selector, filters expander, and Sales tab]
 
-### 11.1 Analytics overview
+### 12.1 Analytics overview
 
 **Purpose:** Understand business performance beyond the daily totals on the Dashboard — spot trends, identify bestsellers and slow movers, plan reorders, monitor margins, and track customer and staff activity.
 
@@ -643,7 +738,7 @@ The **Analytics** page is the business intelligence centre of the application. I
 
 The purchases, sales, and stock adjustments you enter on their respective pages are stored in the database. Analytics reads that data and summarises it. Better data entry habits — recording purchases the day stock arrives, recording every sale at the counter — produce more accurate and timely analytics.
 
-### 11.2 Global controls
+### 12.2 Global controls
 
 These controls appear at the top of the Analytics page and affect **all tabs**.
 
@@ -696,7 +791,7 @@ Select how trend charts group data:
 
 Use daily for short periods (Today, Last 7 days), weekly or monthly for longer ranges (This year).
 
-### 11.3 Sales tab
+### 12.3 Sales tab
 
 Understand how your shop is selling: revenue patterns, channels, bestsellers, and customer payment behaviour.
 
@@ -758,7 +853,7 @@ Caption showing how many sale lines had a price different from the catalog defau
 
 Units and revenue by book category (Veda, Purana, Kavya, etc.).
 
-### 11.4 Purchases tab
+### 12.4 Purchases tab
 
 Track what you are buying, from whom, and how spending trends over time.
 
@@ -788,7 +883,7 @@ All suppliers ranked by spend. Columns: Supplier, Purchases (count), Qty, Spend,
 
 Top 20 books by quantity purchased in the period.
 
-### 11.5 Inventory tab
+### 12.5 Inventory tab
 
 Monitor stock health: what is moving, what is stuck, and what needs reordering.
 
@@ -848,7 +943,7 @@ Summary of manual adjustments in the period by reason.
 
 [Screenshot: Analytics — Inventory tab showing reorder suggestions and days of supply tables]
 
-### 11.6 Profit tab (Owner only)
+### 12.6 Profit tab (Owner only)
 
 > **Owner only:** This tab is not visible to employees. Employees see the caption: *"Employee view — operational sales and inventory insights (no profit/COGS)."*
 
@@ -883,7 +978,7 @@ A warning appears for books sold but never purchased (COGS = 0).
 
 [Screenshot: Analytics — Profit tab with gross profit trend and margin chart]
 
-### 11.7 Customers tab
+### 12.7 Customers tab
 
 Understand your wholesale customer base. Retail walk-in customers are anonymous — only aggregate totals are shown.
 
@@ -907,7 +1002,7 @@ Customers who have not placed an order in 90 or more days. Use this for follow-u
 
 Total walk-in transaction count and revenue for the period. Individual walk-in customers are not tracked.
 
-### 11.8 Staff tab (Owner only)
+### 12.8 Staff tab (Owner only)
 
 > **Owner only:** This tab is not visible to employees.
 
@@ -925,7 +1020,7 @@ Pivot table showing sale counts per day per staff member. Use this to see who wa
 
 [Screenshot: Analytics — Staff tab with employee activity table]
 
-### 11.9 Insights tab
+### 12.9 Insights tab
 
 The Insights tab brings together **proactive alerts** and **analytics configuration**.
 
@@ -972,7 +1067,7 @@ Changing the COGS method affects Profit analytics and Reports P&L. Choose the me
 
 [Screenshot: Analytics — Insights tab showing Analytics settings form]
 
-### 11.10 Analytics exports
+### 12.10 Analytics exports
 
 Most tables in Analytics have export buttons below them:
 
@@ -983,7 +1078,7 @@ File names follow the pattern: `{report-name}-{start-date}-{end-date}.csv` or `.
 
 Example: `bestsellers-2026-05-12-2026-06-11.xlsx`
 
-### 11.11 How to read common metrics
+### 12.11 How to read common metrics
 
 | Term | Plain-language meaning |
 |------|----------------------|
@@ -1002,7 +1097,7 @@ Example: `bestsellers-2026-05-12-2026-06-11.xlsx`
 
 ---
 
-## 12. User Management (Owner Only)
+## 13. User Management (Owner Only)
 
 > **Owner only:** The **Users** page appears in the sidebar only for the Owner role.
 
@@ -1051,15 +1146,16 @@ The user must change this password at next login.
 
 ---
 
-## 13. Common Workflows
+## 14. Common Workflows
 
 Quick-reference guides for everyday tasks.
 
 ### Start of day
 
 1. **Dashboard** — read alerts, check today's sales/purchases so far
-2. Review **low-stock** count and table
-3. If reorder needed → **Analytics** → Inventory → Reorder suggestions
+2. Check **pending online orders** → **Online Orders** → Pending tab
+3. Review **low-stock** count and table
+4. If reorder needed → **Analytics** → Inventory → Reorder suggestions
 
 ### Receive stock from a supplier
 
@@ -1079,6 +1175,16 @@ Quick-reference guides for everyday tasks.
 1. **Contacts** — add wholesale customer first if new
 2. **Sales** → **New sale** — select **Wholesale**, choose customer
 3. Add line items (wholesale prices auto-fill), save, download receipt if needed
+
+### Fulfill an online order (guest pickup)
+
+1. **Dashboard** — note pending online order count (or customer shares order #)
+2. **Online Orders** → **Pending** — select the order and verify line items
+3. When the customer pays at the counter, click **Mark complete**
+4. **Download receipt** PDF for the customer if needed
+
+If the order cannot be fulfilled (customer cancelled, stock unavailable), enter a
+**Cancellation reason** and cancel instead — stock is not changed.
 
 ### Check why stock is wrong
 
@@ -1115,7 +1221,7 @@ Quick-reference guides for everyday tasks.
 
 ---
 
-## 14. Tips, FAQ, and Troubleshooting
+## 15. Tips, FAQ, and Troubleshooting
 
 ### Tips for accurate data
 
@@ -1163,6 +1269,18 @@ A: Ask the Owner to reset it via **Users** → **Manage existing user** → **Re
 
 A: Yes. **Owner** → **Books** → **Edit book** → select the book → **Reactivate this book**.
 
+**Q: How do customers order books online?**
+
+A: Share the app URL — the **Order Books** page opens without login. Customers browse
+in-stock titles, add to cart, and place an order with name and phone. Staff fulfill
+orders from **Online Orders** after the customer arrives to pay and collect.
+
+**Q: Why can't I complete an online order — insufficient stock?**
+
+A: Stock is not reserved when a guest places an order. Another sale may have reduced
+stock since the order was placed. Check **Inventory**, adjust the counter sale or
+purchase stock, or cancel the online order with a reason.
+
 **Q: Do I need internet to use the app?**
 
 A: No. The app runs on the shop's local network (LAN). Internet is not required for daily operation.
@@ -1189,7 +1307,7 @@ A: **Reports** gives formal statements (P&L, Sale–Purchase) for a date range �
 
 ---
 
-## 15. Backup and LAN Access
+## 16. Backup and LAN Access
 
 ### Accessing from multiple PCs
 
@@ -1223,7 +1341,7 @@ If data is lost or corrupted, contact your IT person or the Owner. Restoration r
 
 ---
 
-## 16. Glossary
+## 17. Glossary
 
 | Term | Definition |
 |------|-----------|
@@ -1249,6 +1367,8 @@ If data is lost or corrupted, contact your IT person or the Owner. Restoration r
 | **Last purchase price (COGS)** | COGS method using the most recent purchase price for a book. |
 | **Wholesale customer** | A registered bulk buyer (another shop or reseller). Required for wholesale sales. |
 | **Wholesale sale** | Sale to a registered wholesale customer. Uses wholesale price by default. |
+| **Online order** | A guest request for books via the public Order Books page, fulfilled as a retail sale on pickup. |
+| **Order fulfillment** | Staff action that marks a pending online order complete, records a sale, and decreases stock. |
 
 ---
 

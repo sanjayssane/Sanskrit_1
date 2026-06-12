@@ -15,6 +15,9 @@ Built per `PRD.md`, `TECHNICAL_DESIGN.md`, `ERD.md`, and `DATABASE_PLAN.md`.
 - **Sales**: retail (walk-in) and wholesale, catalog price defaulting with
   per-line override, whole-bill discount, oversell blocked inside the
   transaction, A5 PDF receipt with Devanagari text
+- **Online orders**: public **Order Books** page (no login) for guests to
+  browse in-stock titles and place pickup orders; staff fulfill pending orders
+  on the **Online Orders** page (creates a retail sale and updates stock)
 - **Inventory**: derived stock (never stored), low-stock flags, per-book
   ledger with running balance, owner-only manual adjustments with reasons
 - **Reports**: Sale–Purchase statement, Profit & Loss (owner only, COGS at
@@ -32,6 +35,10 @@ Requires Python 3.11+.
 pip install -r requirements.txt
 streamlit run app.py
 ```
+
+The app opens to the public **Order Books** page by default. Staff use
+**Staff Login** in the sidebar to access the back office (Dashboard, Sales,
+etc.).
 
 On first run the app creates `data/shop.db`, applies migrations, and seeds
 three accounts (all with password `change@123`, which must be changed at
@@ -75,10 +82,13 @@ required for daily operation.
 ## Project structure
 
 ```
-app.py                  Entry point: login gate + role-based navigation
+app.py                  Entry point: guest ordering + staff login + navigation
 pages/                  Streamlit pages (UI only, no SQL)
-services/               Business logic: auth, books, purchases, sales,
-                        inventory, reports, contacts
+                        10_Order_Books.py — public guest ordering
+                        0_Staff_Login.py — staff authentication
+                        11_Online_Orders.py — staff order fulfillment
+services/               Business logic: auth, books, purchases, sales, orders,
+                        inventory, reports, contacts, analytics
 db/                     database.py (connection, migrations, seeding),
                         migrations/*.sql, seed_sample_data.py
 utils/                  money, receipt PDF, CSV/Excel exports, backup
@@ -91,7 +101,8 @@ tests/                  pytest suite for the db and service layers
 
 - SQLite file (`data/shop.db`), WAL mode, foreign keys enforced.
 - Versioned migrations in `db/migrations/` tracked via `PRAGMA user_version`;
-  applied automatically and atomically at startup.
+  applied automatically and atomically at startup (includes `0004_online_orders`
+  for guest orders and line items).
 - Current stock is always derived:
   purchases − sales + adjustments, excluding cancelled transactions
   (views `v_current_stock` and `v_stock_ledger`).

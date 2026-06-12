@@ -61,7 +61,9 @@ db/
 └── migrations/
     ├── 0001_initial.sql        # all 9 tables + indexes
     ├── 0002_views.sql          # v_current_stock, v_stock_ledger
-    └── ...                     # future: 0003_xxx.sql
+    ├── 0003_analytics.sql      # analytics_settings table
+    ├── 0004_online_orders.sql  # online_orders, online_order_items
+    └── ...                     # future: 0005_xxx.sql
 ```
 
 ### 3.2 Runner behavior (`database.py`)

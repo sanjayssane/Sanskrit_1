@@ -26,24 +26,6 @@ def _startup() -> bool:
 
 _startup()
 
-SHOP_TITLE = "संस्कृत साहित्य रत्नाकर — Sanskrit Sahitya Ratnakar"
-
-
-def login_page() -> None:
-    st.title(SHOP_TITLE)
-    st.subheader("Login")
-    with st.form("login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submitted = st.form_submit_button("Log in", type="primary")
-    if submitted:
-        user = auth_service.authenticate(username, password)
-        if user is None:
-            st.error("Invalid username or password, or account is deactivated.")
-        else:
-            st.session_state.user = user
-            st.rerun()
-
 
 def change_password_page() -> None:
     user = st.session_state.user
@@ -70,7 +52,10 @@ def change_password_page() -> None:
 user = st.session_state.get("user")
 
 if user is None:
-    nav = st.navigation([st.Page(login_page, title="Login")])
+    nav = st.navigation([
+        st.Page("pages/10_Order_Books.py", title="Order Books", default=True),
+        st.Page("pages/0_Staff_Login.py", title="Staff Login"),
+    ])
 elif user["must_change_pw"]:
     nav = st.navigation([st.Page(change_password_page, title="Change Password")])
 else:
@@ -83,6 +68,7 @@ else:
         st.Page("pages/6_Reports.py", title="Reports"),
         st.Page("pages/9_Analytics.py", title="Analytics"),
         st.Page("pages/7_Contacts.py", title="Contacts"),
+        st.Page("pages/11_Online_Orders.py", title="Online Orders"),
     ]
     if user["role"] == "owner":
         pages.append(st.Page("pages/8_Users.py", title="Users"))

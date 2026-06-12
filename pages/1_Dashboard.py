@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from services import (analytics_service, auth_service, inventory_service,
-                      purchase_service, report_service, sale_service)
+                      order_service, purchase_service, report_service, sale_service)
 from utils import analytics_ui
 from utils.money import fmt_inr
 
@@ -29,13 +29,18 @@ for a in alerts[:3]:
 today_sales = sale_service.list_sales(today, today, include_cancelled=False)
 today_purchases = purchase_service.list_purchases(today, today, include_cancelled=False)
 
-c1, c2, c3 = st.columns(3)
+pending_orders = order_service.pending_count()
+if pending_orders:
+    st.info(f"{pending_orders} online order(s) awaiting fulfillment.")
+
+c1, c2, c3, c4 = st.columns(4)
 c1.metric("Today's sales", fmt_inr(sum(s["total_amount"] for s in today_sales)),
           f"{len(today_sales)} transaction(s)")
 c2.metric("Today's purchases", fmt_inr(sum(p["total_amount"] for p in today_purchases)),
           f"{len(today_purchases)} transaction(s)")
 low_stock = inventory_service.low_stock_books()
 c3.metric("Low-stock titles", len(low_stock))
+c4.metric("Pending online orders", pending_orders)
 
 if not is_owner:
     self_stats = analytics_service.employee_self_stats(user["id"])
