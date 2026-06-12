@@ -5,6 +5,8 @@ import streamlit as st
 from db import database
 from services import auth_service
 
+USER_GUIDE = st.Page("pages/12_User_Guide.py", title="User Guide", icon="📖")
+
 st.set_page_config(
     page_title="Sanskrit Sahitya Ratnakar",
     layout="wide",
@@ -55,9 +57,13 @@ if user is None:
     nav = st.navigation([
         st.Page("pages/10_Order_Books.py", title="Order Books", default=True),
         st.Page("pages/0_Staff_Login.py", title="Staff Login"),
+        USER_GUIDE,
     ])
 elif user["must_change_pw"]:
-    nav = st.navigation([st.Page(change_password_page, title="Change Password")])
+    nav = st.navigation([
+        st.Page(change_password_page, title="Change Password"),
+        USER_GUIDE,
+    ])
 else:
     pages = [
         st.Page("pages/1_Dashboard.py", title="Dashboard", default=True),
@@ -72,6 +78,7 @@ else:
     ]
     if user["role"] == "owner":
         pages.append(st.Page("pages/8_Users.py", title="Users"))
+    pages.append(USER_GUIDE)
     with st.sidebar:
         st.markdown(f"**{user['full_name']}**  \n_{user['role'].capitalize()}_")
         if st.button("Log out"):

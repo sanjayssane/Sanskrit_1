@@ -59,3 +59,9 @@ def test_dashboard_renders_for_logged_in_user():
     at.run()
     assert not at.exception
     assert any("Dashboard" in t.value for t in at.title)
+
+
+def test_user_guide_renders_without_login():
+    at = _app().switch_page("pages/12_User_Guide.py").run()
+    assert not at.exception
+    assert any("User Guide" in m.value for m in at.markdown)
